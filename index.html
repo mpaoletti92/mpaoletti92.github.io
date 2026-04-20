@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mercedes E. Paoletti — Hyperspectral deep learning & HPC</title>
+<meta name="description" content="Sitio científico de Mercedes E. Paoletti. Investigación en imagen hiperespectral, deep learning y computación de altas prestaciones para observación de la Tierra."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#faf9f5; --bg-elev:#ffffff; --ink:#121214; --ink-2:#2b2b2f;
+  --ink-3:#5e5e65; --ink-4:#8f8f97; --line:#eae7dc; --line-2:#d9d5c7;
+  --accent:#2547ff; --accent-2:#ff5a2e; --accent-3:#00b389; --accent-4:#ffb020;
+  --chip:#f2efe4; --chip-ink:#1a1a1d; --sel:#fff3a8;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --serif:"Instrument Serif","Times New Roman",serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0c0d10; --bg-elev:#15161b; --ink:#f5f4ef; --ink-2:#d9d8d1;
+  --ink-3:#9a9aa2; --ink-4:#686870; --line:#24252c; --line-2:#2f3038;
+  --chip:#1b1c22; --chip-ink:#e9e8e2; --sel:#2547ff;
+  --accent:#7791ff; --accent-2:#ff7a5c; --accent-3:#4cd4ae; --accent-4:#ffc24d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s var(--ease), color .3s var(--ease);
+}
+::selection{background:var(--sel); color:var(--ink)}
+a{color:inherit}
+
+/* ============ FRAME ============ */
+.page{max-width:1240px; margin:0 auto; padding:20px 40px 96px}
+@media (max-width:760px){.page{padding:16px 18px 72px}}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  position:sticky; top:0; z-index:10;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 0 18px;
+  background:color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(160%) blur(10px);
+  -webkit-backdrop-filter:saturate(160%) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .mark{
+  width:30px; height:30px; border-radius:50%;
+  background:conic-gradient(from 210deg,#2547ff,#00b389,#ffb020,#ff5a2e,#2547ff);
+  filter:saturate(1.1);
+  box-shadow:inset 0 0 0 1.5px var(--bg);
+}
+.brand .who{font-family:var(--serif); font-size:19px; letter-spacing:.1px; line-height:1}
+.brand .who em{color:var(--ink-3); font-style:italic}
+.nav{display:flex; gap:22px}
+.nav a{
+  color:var(--ink-3); text-decoration:none; font:500 12.5px var(--sans);
+  padding:4px 0; border-bottom:1.5px solid transparent; transition:all .2s;
+}
+.nav a:hover{color:var(--ink); border-color:var(--ink)}
+@media (max-width:860px){.nav{display:none}}
+.utils{display:flex; gap:6px; align-items:center}
+.ubtn{
+  appearance:none; background:transparent; border:1px solid var(--line);
+  color:var(--ink-2); font:500 11px var(--mono); letter-spacing:.05em;
+  padding:6px 10px; border-radius:999px; cursor:pointer;
+  display:inline-flex; align-items:center; gap:5px; transition:all .15s;
+  text-transform:uppercase;
+}
+.ubtn:hover{border-color:var(--ink-2); color:var(--ink)}
+.ubtn[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+
+/* ============ HERO ============ */
+.hero{
+  display:grid; grid-template-columns:1.35fr .9fr; gap:56px;
+  padding:56px 0 72px; border-bottom:1px solid var(--line);
+}
+@media (max-width:900px){.hero{grid-template-columns:1fr; gap:36px; padding:36px 0 44px}}
+h1.headline{
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(46px,7vw,88px); line-height:.98; letter-spacing:-.015em;
+  margin:0 0 26px; text-wrap:balance;
+}
+h1.headline em{font-style:italic; color:var(--ink-3)}
+h1.headline .dot{
+  display:inline-block; width:.32em; height:.32em; border-radius:50%;
+  background:var(--accent-2); transform:translateY(-.58em); margin-left:.05em;
+}
+.lede{
+  font-size:18px; line-height:1.55; color:var(--ink-2);
+  max-width:58ch; margin:0 0 30px; text-wrap:pretty;
+}
+.lede b{color:var(--ink); font-weight:600}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:7px 20px; font:12.5px var(--mono)}
+.kv dt{color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em}
+.kv dd{margin:0; color:var(--ink-2)}
+.kv dd a{color:var(--ink-2); text-decoration:underline; text-decoration-color:var(--line-2); text-underline-offset:3px}
+.kv dd a:hover{color:var(--accent); text-decoration-color:var(--accent)}
+
+.portrait{
+  position:relative; aspect-ratio:4/5;
+  border-radius:var(--radius); overflow:hidden;
+  background:
+    radial-gradient(circle at 75% 20%, #e9d7ff 0%, transparent 55%),
+    radial-gradient(circle at 20% 80%, #ffd3a5 0%, transparent 50%),
+    linear-gradient(135deg,#eaf2ff 0%,#fff6dd 100%);
+  box-shadow:0 1px 0 var(--line), 0 30px 60px -30px rgba(40,40,60,.25);
+}
+[data-theme="dark"] .portrait{background:
+    radial-gradient(circle at 75% 20%, #4a3570 0%, transparent 55%),
+    radial-gradient(circle at 20% 80%, #7a4a28 0%, transparent 50%),
+    linear-gradient(135deg,#1a2540 0%,#2a2515 100%);}
+.portrait .tag{
+  position:absolute; top:14px; left:14px;
+  background:var(--bg-elev); color:var(--ink);
+  font:10.5px var(--mono); letter-spacing:.08em; text-transform:uppercase;
+  padding:5px 9px; border-radius:999px; border:1px solid var(--line);
+}
+.portrait .stat{
+  position:absolute; top:14px; right:14px;
+  background:var(--ink); color:var(--bg);
+  font:10.5px var(--mono); letter-spacing:.04em; text-transform:uppercase;
+  padding:5px 9px; border-radius:999px;
+}
+.portrait .silhouette{position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center}
+.portrait .silhouette svg{width:72%; height:auto; display:block}
+.portrait .initials{
+  position:absolute; inset:auto 0 0 0; padding:18px 20px;
+  display:flex; align-items:flex-end; justify-content:space-between;
+  color:var(--ink); font:10.5px var(--mono); letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* ============ SECTIONS ============ */
+section.block{padding:72px 0; border-bottom:1px solid var(--line)}
+@media (max-width:760px){section.block{padding:48px 0}}
+.sec-head, .sec-body{display:grid; grid-template-columns:180px 1fr; gap:40px}
+.sec-head{margin-bottom:30px; align-items:baseline}
+@media (max-width:760px){.sec-head,.sec-body{grid-template-columns:1fr; gap:14px}}
+.sec-head .num{font:12px var(--mono); color:var(--ink-4); letter-spacing:.08em; text-transform:uppercase}
+.sec-head h2{
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(30px,4.2vw,46px); line-height:1.05; margin:0;
+  letter-spacing:-.01em; text-wrap:balance;
+}
+.sec-head h2 em{font-style:italic; color:var(--ink-3)}
+.sec-body .side{color:var(--ink-3); font-size:13px; line-height:1.5}
+.sec-body .side .label{font:11px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px}
+.sec-body .side p{margin:0 0 8px}
+
+/* ============ BIO ============ */
+.bio p{font-size:17px; line-height:1.6; color:var(--ink-2); margin:0 0 16px; max-width:66ch; text-wrap:pretty}
+.bio p.big{font-size:23px; line-height:1.35; color:var(--ink); font-family:var(--serif); font-weight:400; margin-bottom:26px}
+.bio p.big em{color:var(--ink-3); font-style:italic}
+.bio p b{color:var(--ink); font-weight:600}
+
+.stats-row{display:grid; grid-template-columns:repeat(4,1fr); margin-top:36px; border-top:1px solid var(--line)}
+.stat-cell{padding:20px 0 0; border-right:1px solid var(--line)}
+.stat-cell:last-child{border-right:none}
+.stat-cell .num{font-family:var(--serif); font-size:48px; line-height:1; letter-spacing:-.02em}
+.stat-cell .num sup{font:14px var(--mono); color:var(--ink-4); vertical-align:super; margin-left:2px}
+.stat-cell .lbl{font:11px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em; margin-top:8px}
+@media (max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr)} .stat-cell:nth-child(2){border-right:none} .stat-cell{padding-bottom:16px; border-bottom:1px solid var(--line)}}
+
+/* ============ CHART ============ */
+.chart{margin-top:22px}
+.chart .legend{display:flex; gap:18px; font:11px var(--mono); color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px}
+.chart .legend span{display:inline-flex; align-items:center; gap:6px}
+.chart .legend i{width:10px; height:10px; border-radius:2px; display:inline-block}
+.chart svg{width:100%; height:auto; display:block}
+
+/* ============ PUBS ============ */
+.pub-toolbar{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin-bottom:22px}
+.pub-search{
+  flex:1; min-width:220px; background:var(--bg-elev);
+  border:1px solid var(--line); border-radius:999px;
+  padding:9px 16px; font:14px var(--sans); color:var(--ink);
+  transition:border-color .2s;
+}
+.pub-search:focus{outline:none; border-color:var(--ink-2)}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{
+  appearance:none; background:transparent; color:var(--ink-3);
+  border:1px solid var(--line); border-radius:999px;
+  padding:6px 12px; font:500 12px var(--mono); letter-spacing:.02em;
+  cursor:pointer; transition:all .15s;
+}
+.chip:hover{border-color:var(--ink-3); color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.chip .n{opacity:.55; margin-left:4px}
+.chip[aria-pressed="true"] .n{opacity:.7}
+
+.pub-count{font:11px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em; margin:6px 0 14px}
+.pub-list{list-style:none; margin:0; padding:0}
+.pub-item{
+  display:grid; grid-template-columns:60px 1fr 170px; gap:24px;
+  padding:18px 0; border-top:1px solid var(--line); align-items:baseline;
+}
+.pub-item:last-child{border-bottom:1px solid var(--line)}
+@media (max-width:760px){.pub-item{grid-template-columns:52px 1fr} .pub-item .venue{grid-column:2; font-size:12px; color:var(--ink-4)}}
+.pub-year{font:13px var(--mono); color:var(--ink-4)}
+.pub-main .title{
+  font-family:var(--serif); font-size:19px; line-height:1.3;
+  color:var(--ink); margin:0 0 5px; font-weight:400; text-wrap:balance;
+}
+.pub-main .title a{text-decoration:none; border-bottom:1px solid transparent}
+.pub-main .title a:hover{border-color:var(--ink-3)}
+.pub-main .authors{font-size:13px; color:var(--ink-3); margin-bottom:5px; line-height:1.45}
+.pub-main .authors b{color:var(--ink); font-weight:600}
+.pub-main .meta{display:flex; flex-wrap:wrap; gap:6px 10px; font:10.5px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.06em}
+.pub-main .meta .tag{padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--ink-3)}
+.pub-main .meta .tag.journal{border-color:color-mix(in oklab,var(--accent) 35%,var(--line)); color:var(--accent)}
+.pub-main .meta .tag.chapter{border-color:color-mix(in oklab,var(--accent-4) 45%,var(--line)); color:var(--accent-4)}
+.pub-main .meta .q1{color:var(--accent-3); border-color:color-mix(in oklab,var(--accent-3) 40%,var(--line)); padding:2px 8px; border-radius:999px; border:1px solid}
+.pub-main .meta .if{color:var(--ink-3)}
+.pub-venue{font:12px var(--mono); color:var(--ink-3); text-align:right; line-height:1.4}
+.pub-venue .doi{display:block; margin-top:2px; color:var(--ink-4); font-size:11px}
+.pub-venue .doi a{color:var(--ink-3); text-decoration:underline; text-decoration-color:var(--line-2)}
+.pub-venue .doi a:hover{color:var(--accent)}
+
+.showmore{
+  margin-top:20px; font:500 11.5px var(--mono); text-transform:uppercase; letter-spacing:.08em;
+  background:none; border:none; color:var(--ink); cursor:pointer;
+  padding:10px 0; border-bottom:1px solid var(--ink);
+}
+.showmore:hover{color:var(--accent); border-color:var(--accent)}
+
+/* ============ PROJECTS ============ */
+.proj-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
+@media (max-width:720px){.proj-grid{grid-template-columns:1fr}}
+.proj-card{
+  background:var(--bg-elev); border:1px solid var(--line);
+  border-radius:var(--radius); padding:22px 22px 18px;
+  display:flex; flex-direction:column; gap:10px;
+  transition:border-color .2s, transform .2s; position:relative; overflow:hidden;
+}
+.proj-card:hover{border-color:var(--ink-3)}
+.proj-card .status{display:inline-flex; align-items:center; gap:6px; font:10.5px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em}
+.proj-card .status i{width:6px; height:6px; border-radius:50%; background:var(--accent-3); box-shadow:0 0 0 3px color-mix(in oklab,var(--accent-3) 25%, transparent)}
+.proj-card .status.closed i{background:var(--ink-4); box-shadow:none}
+.proj-card h3{margin:2px 0 0; font-family:var(--serif); font-weight:400; font-size:21px; line-height:1.2; letter-spacing:-.005em; text-wrap:balance}
+.proj-card .role-row{display:flex; gap:10px; flex-wrap:wrap; font:10.5px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.06em}
+.proj-card .role-row .role{color:var(--accent)}
+.proj-card .role-row .role.ip{color:var(--accent-2); font-weight:600}
+.proj-card .foot{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font:10.5px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.06em; margin-top:auto; padding-top:12px; border-top:1px dashed var(--line-2)}
+.proj-card .foot .code{color:var(--ink-3)}
+.proj-card .foot .amt{color:var(--ink)}
+
+/* ============ NETWORK ============ */
+.net-wrap{position:relative; background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius); padding:14px; overflow:hidden}
+.net-wrap svg{width:100%; height:520px; display:block; cursor:grab}
+.net-wrap .hint{position:absolute; bottom:10px; right:14px; font:10px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em}
+
+/* ============ TOPICS ============ */
+.topics{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:baseline}
+.topic{
+  display:inline-flex; align-items:baseline; gap:6px;
+  padding:6px 13px; background:var(--chip); color:var(--chip-ink);
+  border-radius:999px; font:500 13px var(--sans); cursor:default;
+  transition:all .15s;
+}
+.topic:hover{background:var(--ink); color:var(--bg)}
+.topic .w{font:10px var(--mono); color:var(--ink-4)}
+.topic:hover .w{color:var(--bg)}
+.topic.mid{font-size:15px; padding:7px 14px}
+.topic.big{font-size:18px; padding:9px 16px; font-family:var(--serif); font-style:italic; font-weight:400; background:var(--ink); color:var(--bg)}
+.topic.big .w{color:color-mix(in oklab,var(--bg) 55%,transparent)}
+
+/* ============ LIST ROWS ============ */
+.rows{display:flex; flex-direction:column}
+.row-i{display:grid; grid-template-columns:110px 1fr auto; gap:24px; padding:14px 0; border-top:1px solid var(--line); align-items:baseline}
+.row-i:last-child{border-bottom:1px solid var(--line)}
+@media (max-width:700px){.row-i{grid-template-columns:90px 1fr; gap:14px} .row-i .meta{grid-column:2; white-space:normal}}
+.row-i .when{font:12px var(--mono); color:var(--ink-4)}
+.row-i .what{font-family:var(--serif); font-size:18px; line-height:1.3; color:var(--ink)}
+.row-i .what small{display:block; font-family:var(--sans); font-size:13px; color:var(--ink-3); margin-top:3px; line-height:1.45}
+.row-i .meta{font:10.5px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap}
+.row-i .meta.accent{color:var(--accent)}
+
+/* ============ CONTACT ============ */
+.contact-grid{display:grid; grid-template-columns:1.3fr .7fr; gap:40px}
+@media (max-width:720px){.contact-grid{grid-template-columns:1fr}}
+.contact-cta{
+  font-family:var(--serif); font-size:clamp(28px,3.6vw,40px); line-height:1.12;
+  margin:0 0 20px; letter-spacing:-.005em; font-weight:400; text-wrap:balance;
+}
+.contact-cta em{color:var(--ink-3); font-style:italic}
+.contact-cta a{color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent)}
+.contact-cta a:hover{color:var(--accent-2); border-color:var(--accent-2)}
+.socials{display:flex; flex-wrap:wrap; gap:8px}
+.soc{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 14px; border:1px solid var(--line); border-radius:999px;
+  color:var(--ink); text-decoration:none; font:500 13px var(--sans);
+  transition:all .15s;
+}
+.soc:hover{border-color:var(--ink-2); transform:translateY(-1px)}
+.soc i{width:8px; height:8px; border-radius:50%; background:var(--accent); display:inline-block}
+.soc:nth-child(2) i{background:var(--accent-3)}
+.soc:nth-child(3) i{background:var(--accent-2)}
+.soc:nth-child(4) i{background:var(--accent-4)}
+
+/* ============ FOOTER ============ */
+.footer{
+  margin-top:64px; display:flex; justify-content:space-between; align-items:baseline;
+  font:11px var(--mono); color:var(--ink-4); text-transform:uppercase; letter-spacing:.08em;
+  padding-top:18px; border-top:1px solid var(--line); flex-wrap:wrap; gap:8px;
+}
+
+/* tiny helpers */
+.muted{color:var(--ink-3)}
+.mono{font-family:var(--mono)}
+
+/* Tweaks panel */
+.tweaks{
+  position:fixed; bottom:16px; right:16px; z-index:40;
+  background:var(--bg-elev); border:1px solid var(--line); border-radius:12px;
+  padding:14px 16px; box-shadow:0 20px 40px -20px rgba(0,0,0,.25);
+  display:none; min-width:220px;
+}
+.tweaks.on{display:block}
+.tweaks h4{margin:0 0 8px; font:600 11px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-4)}
+.tweaks .r{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:6px 0}
+.tweaks .r span{font-size:13px; color:var(--ink-2)}
+
+/* appear */
+.appear{animation:ap .6s var(--ease) both}
+@keyframes ap{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+</style>
+</head>
+<body>
+<div class="page" id="app"></div>
+
+<!-- Tweak panel (host-driven via postMessage) -->
+<aside class="tweaks" id="tweaks-panel">
+  <h4>Tweaks</h4>
+  <div class="r"><span>Tema oscuro</span>
+    <button class="ubtn" id="tw-dark" aria-pressed="false">OFF</button>
+  </div>
+  <div class="r"><span>Idioma</span>
+    <button class="ubtn" id="tw-lang">ES</button>
+  </div>
+</aside>
+
+<script>
+// ========== DATA (injected by build) ==========
+window.__PUBS__ = [{"y":2021,"t":"Ghostnet for hyperspectral image classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Juan M. Haut","N. S. Pereira","Javier Plaza","Antonio Plaza"],"type":"journal","impact":8.125,"q1":true,"doi":"10.1109/TGRS.2021.3050257"},{"y":2021,"t":"Generative Adversarial Minority Oversampling for Spectral-Spatial Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Swalpa K. Roy","Juan M. Haut","M. E. Paoletti","Shiv Ram Dubey","Antonio Plaza"],"type":"journal","impact":8.125,"q1":true,"doi":"10.1109/TGRS.2021.3052048"},{"y":2019,"t":"Deep learning classifiers for hyperspectral imaging: A review","v":"ISPRS Journal of Photogrammetry and Remote Sensing","a":["M.E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":7.319,"q1":true,"doi":"10.1016/j.isprsjprs.2019.09.006"},{"y":2019,"t":"Visual Attention-Driven Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Juan M. Haut","M. E. Paoletti","Javier Plaza","Antonio Plaza","Jun Li"],"type":"journal","impact":5.855,"q1":true,"doi":"10.1109/TGRS.2019.2918080"},{"y":2019,"t":"Capsule Networks for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Juan M. Haut","Rubén Fernández-Beltrán","Javier Plaza","Antonio Plaza","Jun Li","Filiberto Pla"],"type":"journal","impact":5.63,"q1":true,"doi":"10.1109/TGRS.2018.2871782"},{"y":2019,"t":"Deep Pyramidal Residual Networks for Spectral-Spatial Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Juan M. Haut","Rubén Fernández-Beltrán","Javier Plaza","A. J. Plaza","Filiberto Pla"],"type":"journal","impact":5.855,"q1":true,"doi":"10.1109/TGRS.2018.2860125"},{"y":2019,"t":"Feature Extraction With Multiscale Covariance Maps for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["N. He","M.E. Paoletti","Juan M. Haut","L. Fang","S. Li","Antonio Plaza","Javier Plaza"],"type":"journal","impact":5.855,"q1":true,"doi":"10.1109/TGRS.2018.2860464"},{"y":2018,"t":"A new deep convolutional neural network for fast hyperspectral image classification","v":"ISPRS Journal of Photogrammetry and Remote Sensing","a":["M.E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":6.942,"q1":true,"doi":"10.1016/j.isprsjprs.2017.11.021"},{"y":2026,"t":"Transformer-based network for enhanced wireless service differentiation in 6G","v":"Expert Systems with Applications","a":["David Cortés-Polo","Jesús Calle-Cancho","Mercedes E. Paoletti","Juan M. Haut"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1016/j.eswa.2025.130379"},{"y":2026,"t":"A Physics-Guided Diffusion Unmixing Model for Global Lunar Mineral Abundance Mapping","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Pan Zheng","Hongjun Su","Zhaoyue Wu","Juan M. Haut","Mercedes E. Paoletti"],"type":"journal","impact":8.6,"q1":true,"doi":"10.1109/JSTARS.2026.3657892"},{"y":2025,"t":"Distributed Parallel Hyperspectral Unmixing for Large-Scale Data in Spark Environments via Geometric Distance","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Carlos Cañada","Mercedes E. Paoletti","María B. García-Flores","Xuanwen Tao","Rafael Pastor-Vargas","Juan M. Haut"],"type":"journal","impact":8.6,"q1":true,"doi":"10.1109/TGRS.2025.3624287"},{"y":2025,"t":"DenseMixerMamba: Residual Mixing for Spectral-Spatial Hyperspectral Image Classifcation","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Mercedes E. Paoletti","Zhaoyue Wu","Pan Zheng","Danfeng Hong","Juan M. Haut"],"type":"journal","impact":8.6,"q1":true,"doi":"10.1109/TGRS.2025.3618015"},{"y":2025,"t":"PIDLF+: A Novel Adaptive PIDLF for Forestry Height Mapping Based on Single-Baseline PolInSAR Data","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Dandan Li","Hailiang Lu","Mercedes E. Paoletti","Juan M. Haut","Juntao Gu","Chao Li"],"type":"journal","impact":5.3,"q1":true,"doi":"10.1109/JSTARS.2025.3594201"},{"y":2025,"t":"A Novel Spectral-Spatial Attention Network for Zero-Shot Pansharpening","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Hailiang Lu","Mercedes E. Paoletti","Juan M. Haut","Sergio Moreno-Álvarez","Guangsheng Chen","Weipeng Jing"],"type":"journal","impact":5.3,"q1":true,"doi":"10.1109/JSTARS.2025.3587244"},{"y":2025,"t":"Cerebral ischaemia detection using Deep Learning techniques","v":"Health Information Science and Systems","a":["Rafael Pastor-Vargas","Cristina Antón-Munárriz","Juan M. Haut","Antonio Robles-Gómez","Mercedes Eugenia Paoletti","José Alberto Benítez-Andrades"],"type":"journal","impact":6,"q1":false,"doi":"10.1007/s13755-025-00352-8"},{"y":2025,"t":"KACNet: Kolmogorov-Arnold Convolution Network for Hyperspectral Anomaly Detection","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Zhaoyue Wu","Hailiang Lu","Mercedes Eugenia Paoletti","Hongjun Su","Weipeng Jing","Juan M. Haut"],"type":"journal","impact":8.6,"q1":true,"doi":"10.1109/TGRS.2025.3540385"},{"y":2025,"t":"REDU-Net: Robust and Efficient Dynamic Unfolding Network for Abundance Estimation","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["YOURAN GE","LIRONG HAN","MERCEDES EUGENIA PAOLETTI","JUAN MARIO HAUT","GANGRONG QU","ANTONIO PLAZA"],"type":"journal","impact":8.6,"q1":true,"doi":"10.1109/TGRS.2025.3540378"},{"y":2024,"t":"Deep Shared Proxy Construction Hashing for Cross-Modal Remote Sensing Image Fast Localization","v":"ISPRS Journal of Photogrammetry and Remote Sensing","a":["Lirong Han","Mercedes E. Paoletti","Sergio Moreno-Álvarez","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":10.6,"q1":true,"doi":"10.1016/j.isprsjprs.2024.10.004"},{"y":2024,"t":"Enhancing Distributed Neural Network Training Through Node-Based Communications","v":"IEEE Transactions on Neural Networks and Learning Systems","a":["Sergio Moreno-Álvarez","Mercedes E. Paoletti","Gabriele Cavallaro","Juan M. Haut"],"type":"journal","impact":10.2,"q1":true,"doi":"10.1109/TNNLS.2023.3309735"},{"y":2024,"t":"Federated Learning meets Remote Sensing","v":"Expert Systems with Application (ESWA)","a":["Sergio Moreno Álvarez","Mercedes E. Paoletti","Andres J. Sanchez Fernandez","Juan Antonio Rico Gallego","Lirong Han","Juan M. Haut"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1016/j.eswa.2024.124583"},{"y":2024,"t":"SMCNet: Sparse-inspired Masked Convolutional Network for Hyperspectral Anomaly Detection","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Zhaoyue Wu","Mercedes E. Paoletti","Hongjun Su","Pan Zheng","Zhong Zhang","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2024.3477256"},{"y":2024,"t":"Transformer-Enhanced CNN based on Intensive Feature for Hyperspectral Unmixing","v":"IEEE Geoscience and Remote Sensing Letters","a":["Youran Ge","Lirong Han","Mercedes E. Paoletti","Juan M. Haut","Gangrong Qu"],"type":"journal","impact":4,"q1":false,"doi":"10.1109/LGRS.2024.3485899"},{"y":2024,"t":"Decentralized mechanism for edge node allocation in access network: An experimental evaluation","v":"Future Internet","a":["Jesús Calle Cancho","Carlos Cañada","Rafael Pastor Vargas","Mercedes E. Paoletti","Juan M. Haut"],"type":"journal","impact":2.8,"q1":false,"doi":"10.3390/fi16090342"},{"y":2024,"t":"Graph Convolutional Network with Relaxed Collaborative Representation for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Hengyi Zheng","Hongjun Su","Zhaoyue Wu","Mercedes E. Paoletti","Qian Du"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2024.3468269"},{"y":2024,"t":"Hash-based Remote Sensing Image Retrieval","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Lirong Han","Mercedes E. Paoletti","Xuanwen Tao","Zhaoyue Wu","Juan M. Haut","Peng Li","Rafael Pastor Vargas","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2024.3429350"},{"y":2024,"t":"Hyperspectral Image Analysis Using Cloud-Based Support Vector Machines","v":"SN Computer Science","a":["Alfonso Pardo Díaz","Juan M. Haut","Jose M. Franco Valiente","Mercedes E. Paoletti","Sergio Moreno Álvarez"],"type":"journal","impact":null,"q1":false,"doi":null},{"y":2024,"t":"Joint learning-based coded aperture compressive temporal imaging","v":"Journal of the Optical Society of America A-Optics image Science and Vision (JOSA)","a":["Youran Ge","Gangrong Qu","Mercedes E. Paoletti","Lirong Han","Juan M. Haut","Yuhao Huang"],"type":"journal","impact":1.4,"q1":false,"doi":"10.1364/JOSAA.523092"},{"y":2024,"t":"An Abundance-Guided Attention Network for Hyperspectral Unmixing","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Xuanwen Tao","Mercedes E. Paoletti","Zhaoyue Wu","Juan M. Haut","Peng Ren","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2024.3353259"},{"y":2024,"t":"Hashing for Retrieving Long-tailed Distributed Remote Sensing Images","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Lirong Han","Mercedes E. Paoletti","Sergio Moreno-Álvarez","Juan M. Haut","Rafael Pastor-Vargas","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2024.3360621"},{"y":2023,"t":"Cloud-Based Analysis of Large-Scale Hyperspectral Imagery for Oil Spill Detection","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Juan M. Haut","Sergio Moreno-Álvarez","Rafael Pastor-Vargas","Ambar Perez-Garcia","Mercedes E. Paoletti"],"type":"journal","impact":4.7,"q1":true,"doi":"10.1109/JSTARS.2023.3344022"},{"y":2023,"t":"Background-Guided Deformable Convolutional Autoencoder for Hyperspectral Anomaly Detection","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Zhaoyue Wu","Mercedes E. Paoletti","H. Su","Xuanwen Tao","Lirong Han","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2023.3334562"},{"y":2023,"t":"CIT: Content-invariant translation with hybrid attention mechanism for unsupervised change detection","v":"ISPRS Journal of Photogrammetry and Remote Sensing","a":["B. Fang","G. Chen","R. Kou","Mercedes E. Paoletti","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":10.6,"q1":true,"doi":"10.1016/j.isprsjprs.2023.09.012"},{"y":2023,"t":"Cloud Implementation of Extreme Learning Machine for Hyperspectral Image Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["Juan M. Haut","Sergio Moreno-Álvarez","E. Moreno-Avila","V. A. Ayma","Rafael Pastor-Vargas","Mercedes E. Paoletti"],"type":"journal","impact":4,"q1":false,"doi":"10.1109/LGRS.2023.3295742"},{"y":2023,"t":"Parameter-Free Attention Network for Spectral-Spatial Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Mercedes E. Paoletti","Xuanwen Tao","Lirong Han","Zhaoyue Wu","Sergio Moreno-Álvarez","Swalpa K. Roy","Antonio Plaza","Juan M. Haut"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2023.3295097"},{"y":2023,"t":"Novel Spectral Loss Function for Unsupervised Hyperspectral Image Segmentation","v":"IEEE Geoscience and Remote Sensing Letters","a":["A. Perez-García","Mercedes E. Paoletti","Juan M. Haut","José F. López"],"type":"journal","impact":4,"q1":false,"doi":"10.1109/LGRS.2023.3288809"},{"y":2023,"t":"A Comprehensive Survey of Imbalance Correction Techniques for Hyperspectral Data Classification","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Mercedes E. Paoletti","O. Mogollon-Gutierrez","Sergio Moreno-Álvarez","J. C. Sancho","Juan M. Haut"],"type":"journal","impact":4.7,"q1":true,"doi":"10.1109/JSTARS.2023.3279506"},{"y":2023,"t":"AAtt-CNN: Automatic Attention-Based Convolutional Neural Networks for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Mercedes E. Paoletti","Sergio Moreno-Álvarez","Y. Xue","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":7.5,"q1":true,"doi":"10.1109/TGRS.2023.3272639"},{"y":2023,"t":"QCircularStats: A QGIS-Plugin for Evaluation Bidimensional Data by Circular Statistics","v":"IEEE Access","a":["A. Cuartero","Mercedes E. Paoletti","P. García-Rodríguez","Juan M. Haut"],"type":"journal","impact":3.4,"q1":false,"doi":"10.1109/ACCESS.2023.3272637"},{"y":2023,"t":"Orthogonal projection for anomaly detection in networking datasets","v":"Journal of Ambient Intelligence and Humanized Computing","a":["D. Cortes-Polo","L.I. Jimenez","Mercedes E. Paoletti","J. Calle-Cancho","Juan A. Rico-Gallego"],"type":"journal","impact":null,"q1":false,"doi":"10.1007/s12652-023-04605-w"},{"y":2023,"t":"Central Cohesion Gradual Hashing for Remote Sensing Image Retrieval","v":"IEEE Geoscience and Remote Sensing Letters","a":["Lirong Han","Mercedes E. Paoletti","Xuanwen Tao","Zhaoyue Wu","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":4,"q1":false,"doi":"10.1109/LGRS.2023.3241849"},{"y":2022,"t":"Machine Learning in Pansharpening: A benchmark, from shallow to deep networks","v":"IEEE Geoscience and Remote Sensing Magazine","a":["Liang-jian Deng","Gemine Vivone","Mercedes E. Paoletti","Giuseppe Scarpa","Jiang He","Yongjun Zhang","Jocelyn Chanussot","Antonio Plaza"],"type":"journal","impact":14.6,"q1":true,"doi":"10.1109/MGRS.2022.3187652"},{"y":2022,"t":"A New Deep Convolutional Network for Effective Hyperspectral Unmixing","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Xuanwen Tao","Mercedes E. Paoletti","Lirong Han","Zhaoyue Wu","Peng Ren","Javier Plaza","Antonio Plaza","Juan M. Haut"],"type":"journal","impact":5.5,"q1":true,"doi":"10.1109/JSTARS.2022.3200733"},{"y":2022,"t":"Hyperspectral Anomaly Detection with Relaxed Collaborative Representation","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Zhaoyue Wu","H. Su","Xuanwen Tao","Lirong Han","M. E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":8.2,"q1":true,"doi":"10.1109/TGRS.2022.3190327"},{"y":2022,"t":"Remote Sensing Image Classification using CNNs with Balanced Gradient for Distributed Heterogeneous Computing","v":"IEEE Geoscience and Remote Sensing Letters","a":["Sergio Moreno-Álvarez","M. E. Paoletti","Gabriele Cavallaro","J. A. Rico","Juan M. Haut"],"type":"journal","impact":4.8,"q1":false,"doi":"10.1109/LGRS.2022.3173052"},{"y":2022,"t":"Heterogeneous Gradient Computing Optimization for Scalable Deep Neural Networks","v":"The Journal of Supercomputing","a":["Sergio Moreno-Álvarez","M.E. Paoletti","Juan A. Rico-Gallego","Juan M. Haut"],"type":"journal","impact":3.3,"q1":false,"doi":"10.1007/s11227-022-04399-2"},{"y":2022,"t":"Fast Orthogonal Projection for Hyperspectral Unmixing","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Xuanwen Tao","M. E. Paoletti","Lirong Han","Juan M. Haut","P. Ren","Javier Plaza","Antonio Plaza"],"type":"journal","impact":8.2,"q1":true,"doi":"10.1109/TGRS.2022.3150263"},{"y":2022,"t":"Efficient Semantic Segmentation of Hyperspectral Images Using Adaptable Rectangular Convolution","v":"IEEE Geoscience and Remote Sensing Letters","a":["J.L. García","M. E. Paoletti","L.I. Jimenéz","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":4.8,"q1":false,"doi":"10.1109/LGRS.2022.3140950"},{"y":2021,"t":"Multiple Attention-Guided Capsule Networks for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Sergio Moreno-Álvarez","Juan M. Haut"],"type":"journal","impact":8.125,"q1":true,"doi":"10.1109/TGRS.2021.3135506"},{"y":2021,"t":"Separable Attention Network on Single-precision floating-point for RSI Land-Cover Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["M. E. Paoletti","Juan M. Haut","T. Alipour-Fard","Swalpa K. Roy","Eligius M. T. Hendrix","Antonio Plaza"],"type":"journal","impact":5.343,"q1":true,"doi":"10.1109/LGRS.2021.3108965"},{"y":2021,"t":"Deep Mixed Precision for Hyperspectral Image Classification","v":"The Journal of Supercomputing","a":["M.E. Paoletti","Xuanwen Tao","Juan M. Haut","Sergio Moreno-Álvarez","Antonio Plaza"],"type":"journal","impact":2.557,"q1":false,"doi":"10.1007/s11227-021-03638-2"},{"y":2021,"t":"Distributed Deep Learning for Remote Sensing Data Interpretation","v":"Proceedings of the IEEE","a":["Juan M. Haut","M. E. Paoletti","Sergio Moreno-Álvarez","Javier Plaza","Juan A. Rico-Gallego","Antonio Plaza"],"type":"journal","impact":14.91,"q1":true,"doi":"10.1109/JPROC.2021.3063258"},{"y":2021,"t":"Endmember Estimation from Hyperspectral Images Using Geometric Distances","v":"IEEE Geoscience and Remote Sensing Letters","a":["Xuanwen Tao","M. E. Paoletti","Juan M. Haut","Lirong Han","P. Ren","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.343,"q1":true,"doi":"10.1109/LGRS.2021.3102076"},{"y":2021,"t":"SiCoDeF2Net: Siamese Convolution De-Convolution Feature Fusion Network for One-Shot Classification","v":"IEEE Access","a":["Swalpa K. Roy","P. Kar","M. E. Paoletti","Juan M. Haut","Rafael Pastor-Vargas","A. Robles-Gómez"],"type":"journal","impact":3.476,"q1":false,"doi":"10.1109/ACCESS.2021.3107626"},{"y":2021,"t":"FLOP-reduction through memory allocations within CNN for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Juan M. Haut","Xuanwen Tao","Javier Plaza","Antonio Plaza"],"type":"journal","impact":8.125,"q1":true,"doi":"10.1109/TGRS.2020.3024730"},{"y":2021,"t":"U-IMG2DSM: Unpaired Simulation of Digital Surface Models with Generative Adversarial Networks","v":"IEEE Geoscience and Remote Sensing Letters","a":["M. E. Paoletti","Juan M. Haut","P. Ghamisi","N. Yokoya","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.343,"q1":true,"doi":"10.1109/LGRS.2020.2997295"},{"y":2021,"t":"Heterogeneous Model Parallelism for Deep Neural Networks","v":"Neurocomputing","a":["Sergio Moreno-Álvarez","Juan M. Haut","M.E. Paoletti","Juan A. Rico-Gallego"],"type":"journal","impact":2.474,"q1":false,"doi":"10.1016/j.neucom.2021.01.125"},{"y":2021,"t":"Morphological Convolutional Neural Networks for Hyperspectral Image Classification","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Swalpa K. Roy","R. Mondal","M. E. Paoletti","Juan M. Haut","Antonio Plaza"],"type":"journal","impact":4.715,"q1":false,"doi":"10.1109/JSTARS.2021.3088228"},{"y":2021,"t":"Multibranch Selective Kernel Networks for Hyperspectral Image Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["T. Alipour-Fard","M. E. Paoletti","Juan M. Haut","H. Arefi","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.343,"q1":true,"doi":"10.1109/LGRS.2020.2990971"},{"y":2021,"t":"Adaptable Convolutional Network for Hyperspectral Image Classification","v":"Remote Sensing","a":["M.E. Paoletti","Juan M. Haut"],"type":"journal","impact":5.349,"q1":true,"doi":"10.3390/rs13183637"},{"y":2021,"t":"Analysis of Remotely Sensed Images Through Social Media","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["A. Redondo","Juan M. Haut","M. E. Paoletti","Xuanwen Tao","Javier Plaza","Antonio Plaza"],"type":"journal","impact":4.715,"q1":false,"doi":"10.1109/JSTARS.2021.3062116"},{"y":2021,"t":"Endmember Estimation with Maximum Distance Analysis","v":"Remote Sensing","a":["T. Xuanwen","M.E. Paoletti","Juan M. Haut","P. Ren","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.349,"q1":true,"doi":"10.3390/rs13040713"},{"y":2020,"t":"Cloud Implementation of Multinomial Logistic Regression for UAV Hyperspectral Images","v":"IEEE Journal on Miniaturization for Air and Space Systems","a":["Juan M. Haut","M.E. Paoletti"],"type":"journal","impact":null,"q1":false,"doi":"10.1109/JMASS.2020.3019669"},{"y":2020,"t":"Training deep neural networks: a static load balancing approach","v":"The Journal of Supercomputing","a":["Sergio Moreno-Álvarez","Juan M. Haut","M.E. Paoletti","Juan A. Rico-Gallego","J.C. Díaz-Martín","Javier Plaza"],"type":"journal","impact":2.474,"q1":false,"doi":"10.1007/s11227-020-03200-6"},{"y":2020,"t":"Scalable recurrent neural network for hyperspectral image classification","v":"The Journal of Supercomputing","a":["M.E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":2.474,"q1":false,"doi":"10.1007/s11227-020-03187-0"},{"y":2020,"t":"GPU-Friendly Neural Networks for Remote Sensing Scene Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["Juan M. Haut","A. Alcolea","M. E. Paoletti","Javier Plaza","J. Resano","Antonio Plaza"],"type":"journal","impact":3.966,"q1":true,"doi":"10.1109/LGRS.2020.3019378"},{"y":2020,"t":"Rotation Equivariant Convolutional Neural networks for Hyperspectral Image Classification","v":"IEEE Access","a":["M. E. Paoletti","Juan M. Haut","Swalpa K. Roy","Eligius M. T. Hendrix"],"type":"journal","impact":3.367,"q1":false,"doi":"10.1109/ACCESS.2020.3027776"},{"y":2020,"t":"Neighboring Region Dropout for Hyperspectral Image Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["M. E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":3.966,"q1":true,"doi":"10.1109/LGRS.2019.2940467"},{"y":2020,"t":"A New GPU Implementation of Support Vector Machines for Fast Hyperspectral Image Classification","v":"Remote Sensing","a":["M.E. Paoletti","Juan M. Haut","T. Xuanwen","Javier Plaza","Antonio Plaza"],"type":"journal","impact":4.848,"q1":false,"doi":"10.3390/rs12081257"},{"y":2020,"t":"A Single Model CNN for Hyperspectral Image Denoising","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["A. Maffei","Juan M. Haut","M. E. Paoletti","Javier Plaza","L. Bruzzone","Antonio Plaza"],"type":"journal","impact":5.6,"q1":true,"doi":"10.1109/TGRS.2019.2952062"},{"y":2020,"t":"Neural Ordinary Differential Equations for Hyperspectral Image Classification","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["M. E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.6,"q1":true,"doi":"10.1109/TGRS.2019.2948031"},{"y":2020,"t":"Inference in Supervised Spectral Classifiers for On-Board Hyperspectral Imaging: An Overview","v":"Remote Sensing","a":["A. Alcolea","M.E. Paoletti","Juan M. Haut","J. Resano","Antonio Plaza"],"type":"journal","impact":4.848,"q1":false,"doi":"10.3390/rs12030534"},{"y":2019,"t":"Cloud Deep Networks for Hyperspectral Image Analysis","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Juan M. Haut","J. A. Gallardo","M. E. Paoletti","Gabriele Cavallaro","Javier Plaza","Antonio Plaza","M. Riedel"],"type":"journal","impact":5.855,"q1":true,"doi":"10.1109/TGRS.2019.2929731"},{"y":2019,"t":"Hyperspectral Image Classification Using Random Occlusion Data Augmentation","v":"IEEE Geoscience and Remote Sensing Letters","a":["Juan M. Haut","M. E. Paoletti","Javier Plaza","Antonio Plaza","Jun Li"],"type":"journal","impact":3.833,"q1":true,"doi":"10.1109/LGRS.2019.2909495"},{"y":2019,"t":"Remote Sensing Image Super-Resolution Using Deep Residual Channel Attention","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Juan M. Haut","Rubén Fernández-Beltrán","M. E. Paoletti","Javier Plaza","Antonio Plaza"],"type":"journal","impact":5.855,"q1":true,"doi":"10.1109/TGRS.2019.2924818"},{"y":2019,"t":"GPU Parallel Implementation of Dual-Depth Sparse Probabilistic Latent Semantic Analysis for Hyperspectral Unmixing","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["J.A. Gallardo","M. E. Paoletti","Juan M. Haut","Rubén Fernández-Beltrán","Antonio Plaza","Javier Plaza"],"type":"journal","impact":3.827,"q1":true,"doi":"10.1109/JSTARS.2019.2934011"},{"y":2019,"t":"Remote Sensing Single-Image Superresolution Based on a Deep Compendium Model","v":"IEEE Geoscience and Remote Sensing Letters","a":["Juan M. Haut","M. E. Paoletti","Rubén Fernández-Beltrán","Javier Plaza","Antonio Plaza","Jun Li"],"type":"journal","impact":3.833,"q1":true,"doi":"10.1109/LGRS.2019.2899576"},{"y":2019,"t":"Low–High-Power Consumption Architectures for Deep-Learning Models Applied to Hyperspectral Image Classification","v":"IEEE Geoscience and Remote Sensing Letters","a":["Juan M. Haut","S. Bernabé","M. E. Paoletti","Rubén Fernández-Beltrán","Antonio Plaza","Javier Plaza"],"type":"journal","impact":3.833,"q1":true,"doi":"10.1109/LGRS.2018.2881045"},{"y":2019,"t":"A comparative study of techniques for hyperspectral image classification [Estudio Comparativo de Técnicas de Clasificación de Imágenes Hiperespectrales]","v":"Revista Iberoamericana de Automática e Informática industrial","a":["M.E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":1.036,"q1":false,"doi":"10.4995/riai.2019.11078"},{"y":2018,"t":"Remote Sensing Image Fusion Using Hierarchical Multimodal Probabilistic Latent Semantic Analysis","v":"IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing","a":["Rubén Fernández-Beltrán","Juan M. Haut","M. E. Paoletti","Javier Plaza","Antonio Plaza","Filiberto Pla"],"type":"journal","impact":3.392,"q1":false,"doi":"10.1109/JSTARS.2018.2881342"},{"y":2018,"t":"A New Deep Generative Network for Unsupervised Remote Sensing Single-Image Super-Resolution","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Juan M. Haut","Rubén Fernández-Beltrán","M. E. Paoletti","Javier Plaza","Antonio Plaza","Filiberto Pla"],"type":"journal","impact":5.63,"q1":true,"doi":"10.1109/TGRS.2018.2843525"},{"y":2018,"t":"Active Learning With Convolutional Neural Networks for Hyperspectral Image Classification Using a New Bayesian Approach","v":"IEEE Transactions on Geoscience and Remote Sensing","a":["Juan M. Haut","M. E. Paoletti","Javier Plaza","Jun Li","Antonio Plaza"],"type":"journal","impact":5.63,"q1":true,"doi":"10.1109/TGRS.2018.2838665"},{"y":2018,"t":"Deep&Dense Convolutional Neural Network for Hyperspectral Image Classification","v":"Remote Sensing","a":["M.E. Paoletti","Juan M. Haut","Javier Plaza","Antonio Plaza"],"type":"journal","impact":4.118,"q1":true,"doi":"10.3390/rs10091454"},{"y":2018,"t":"Multimodal Probabilistic Latent Semantic Analysis for Sentinel-1 and Sentinel-2 Image Fusion","v":"IEEE Geoscience and Remote Sensing Letters","a":["Rubén Fernández-Beltrán","Juan M. Haut","M. E. Paoletti","Javier Plaza","Antonio Plaza","Filiberto Pla"],"type":"journal","impact":3.534,"q1":true,"doi":"10.1109/LGRS.2018.2843886"},{"y":2018,"t":"Fast dimensionality reduction and classification of hyperspectral images with extreme learning machines","v":"Journal of Real-Time Image Processing","a":["Juan M. Haut","M.E. Paoletti","Javier Plaza","Antonio Plaza"],"type":"journal","impact":2.588,"q1":false,"doi":"10.1007/s11554-018-0793-9"},{"y":2017,"t":"Cloud Implementation of the K-Means Algorithm for Hyperspectral Image Analysis","v":"The Journal of Supercomputing","a":["Juan M. Haut","M.E. Paoletti","Javier Plaza","Antonio Plaza"],"type":"journal","impact":1.532,"q1":false,"doi":"10.1007/s11227-016-1896-3"},{"y":2024,"t":"Synergy of Images: Multi-Image Fusion Empowering Super-Resolution in Remote Sensing","v":"Super-Resolution for Remote Sensing","a":["Hailiang Lu","Mercedes E. Paoletti","Lirong Han","Weipeng Jing","Guangsheng Chen","Juan M. Haut"],"type":"chapter","impact":null,"q1":false,"doi":"10.1007/978-3-031-68106-6_6"},{"y":2022,"t":"On training set selection in spatial deep learning","v":"High-Dimensional Optimization and Probability","a":["Eligius M. T. Hendrix","Mercedes E. Paoletti","Juan M. Haut"],"type":"chapter","impact":null,"q1":false,"doi":"10.1007/978-3-031-00832-0_9"}];
+window.__PROJS__ = [{"n":1,"name":"OPTIMIZACIÓN DE LA IA PARA INICIATIVAS SOSTENIBLES DE TELEDETECCIÓN HIPERESPECTRAL (PID2023-149880NA-I00)","ip":"","isIP":false,"start":"01/09/2024","end":"31/12/2027","amount":"163.750","code":"PID2023-149880NA-I00","funder":"Agencia Estatal de Investigación","role":"Miembro"},{"n":2,"name":"Redes de alertas tempranas, para la teledetección de riesgos derivados del cambio climático, por satélites de observación de la tierra para respuesta de protección civil.","ip":"Juan M. Haut","isIP":false,"start":"01/09/2023","end":"31/12/2026","amount":"421.947,9","code":"","funder":"Comisión Europea","role":"Miembro de equipo"},{"n":3,"name":"VIGIA: VIGILANCIA HIPERESPECTRAL INTELIGENTE PARA LA PROTECCIÓN DEL MEDIO AMBIENTE (LEO24-2-16205-ING-ING-286)","ip":"MERCEDES EUGENIA PAOLETTI ÁVILA","isIP":true,"start":"30/04/2025","end":"29/10/2026","amount":"50.000","code":"LEO24-2-16205-ING-ING-286","funder":"","role":"IP"},{"n":4,"name":"Aprendizaje Automático para la Optimización de Plataformas de Supercomputación y soporte de Aplicaciones de Imagen Hiperespectral (IB20040)","ip":"Juan Antonio Rico Gallego","isIP":false,"start":"17/06/2021","end":"16/06/2024","amount":"144.533,4","code":"IB20040","funder":"Consejería de Economía, Ciencia y Agenda Digital","role":"Miembro de equipo"},{"n":5,"name":"Desarrollo de técnicas de aprendizaje profundo para la optimización de la infraestructura de supercomputación y aplicaciones de imagen hiperespectral (PID2019-110315RB-100)","ip":"","isIP":false,"start":"01/06/2020","end":"31/05/2023","amount":"91.960","code":"PID2019-110315RB-100","funder":"Agencia Estatal de Investigación","role":"Miembro de equipo"},{"n":6,"name":"Ayudas de movilidad para estancias breves en otros centros españoles y extranjeros y para traslados temporales a centros extranjeros del subprograma de formación de profesorado universitario (EST17/00918))","ip":"Mercedes Eugenia Paoletti Ávila","isIP":true,"start":"01/09/2018","end":"01/12/2018","amount":"4.331","code":"","funder":"","role":"IP"}];
+</script>
+<script>
+/* =========================================================
+   Mercedes E. Paoletti — scientific site
+   Single-file vanilla JS renderer. Bilingual ES/EN + dark mode.
+   ========================================================= */
+
+/* ---------- i18n ---------- */
+const I = {
+  es: {
+    nav: { bio:"Perfil", pubs:"Publicaciones", proj:"Proyectos", teach:"Docencia", talks:"Charlas", contact:"Contacto" },
+    lang_toggle: "EN",
+    hero_h1_pre: "Imagen hiperespectral,",
+    hero_h1_mid: "deep learning",
+    hero_h1_post: " y computación de altas prestaciones para",
+    hero_h1_it: "observación de la Tierra",
+    hero_lede_html: "Soy <b>Profesora Contratada Doctora</b> en la Universidad de Extremadura, miembro del grupo <b>HyperComp</b>. Investigo en la intersección entre aprendizaje profundo, arquitecturas neuronales eficientes y HPC/GPU, aplicados a la clasificación y análisis de escenas hiperespectrales de teledetección.",
+    kv: {
+      affil: "afiliación", dept: "departamento", group: "grupo",
+      base: "sede", orcid: "orcid", senior: "status"
+    },
+    affil_val: "Universidad de Extremadura",
+    dept_val: "Dpto. Tecnología de los Computadores y de las Comunicaciones",
+    group_val: "HyperComp — Lab. Computación Hiperespectral",
+    base_val: "Centro Universitario de Mérida · Mérida, España",
+    senior_val: "IEEE Senior Member · Editora JSTARS",
+    tag_field: "HPC · Remote Sensing · Deep Learning",
+    stat: "IEEE Senior Member",
+    stats: { h:"índice h (Scopus)", cit:"citas totales", pubs:"publicaciones indexadas", since:"activa desde" },
+    sections: {
+      bio: ["Perfil", "Quién soy, dónde investigo y en qué líneas."],
+      stats: ["Producción científica", "Publicaciones indexadas por año y categoría."],
+      pubs: ["Publicaciones", "Revistas JCR (mayoría Q1), capítulos y libros."],
+      proj: ["Proyectos", "Proyectos competitivos como IP o miembro de equipo."],
+      coauth: ["Coautorías", "Red de colaboradores principales."],
+      topics: ["Temas", "Palabras clave y frecuencia relativa en mis publicaciones."],
+      teach: ["Docencia", "Asignaturas y formación impartida en la UEx."],
+      thesis: ["Tesis y TFx", "Dirección de tesis doctorales y trabajos fin de estudios."],
+      talks: ["Congresos y charlas", "Selección de intervenciones recientes."],
+      stays: ["Estancias", "Movilidad internacional de investigación."],
+      awards: ["Premios y reconocimientos", "Distinciones académicas."],
+      media: ["Divulgación y servicio", "Actividades de comunicación, edición y comité."],
+      contact: ["Contacto", "Para colaboraciones, estudiantes y preguntas."]
+    },
+    bio_big_html: "Mi línea combina <em>aprendizaje profundo espectro-espacial</em>, modelos eficientes (cápsulas, transformers, mixing-MLP) y paralelismo en GPU para analizar imágenes hiperespectrales de satélite y UAV.",
+    bio_p1_html: "Me incorporé al grupo <b>HyperComp</b> en 2016. Desde entonces he trabajado en redes piramidales residuales, cápsulas, ghost-networks, generación adversarial para oversampling, transformers espectrales, aprendizaje federado y por refuerzo aplicados a teledetección. Combino estos modelos con estrategias <b>HPC</b> y <b>GPU</b> para entrenamiento distribuido y eficiente, e inferencia on-board en plataformas embebidas.",
+    bio_p2_html: "Soy Senior Member del IEEE, editora en <b>IEEE JSTARS</b>, he sido editora tópica del <b>IEEE TGRS</b> y editora invitada de varios special issues. He participado como chair/program-chair en IGARSS, WHISPERS y SARTECO. Mi trabajo ha recibido el <b>Premio Extraordinario de Doctorado</b>, el premio a la trayectoria investigadora joven de la UEx y el premio de investigación <b>SCIE-Fundación BBVA</b> (2022).",
+    pubs_ui: {
+      search: "Buscar por título, autor o revista…",
+      all: "Todas", journal: "Revista", chapter: "Capítulo",
+      showing: "mostrando",
+      of: "de",
+      showmore: "Ver más publicaciones",
+      showless: "Ver menos",
+      cites: "citas"
+    },
+    production_ui: {
+      journals: "revistas", chapters: "capítulos", total: "total"
+    },
+    coauth_ui: {
+      intro: "Grosor de la línea ≈ publicaciones conjuntas. Arrastra los nodos para explorar.",
+      drag: "arrastra"
+    },
+    proj_active: "Activo", proj_closed: "Cerrado",
+    ip: "IP", member: "Miembro",
+    contact_cta_html: "¿Buscas colaboración en <em>imagen hiperespectral, HPC o deep learning</em> para observación de la Tierra? <a href=\"mailto:mpaoletti@unex.es\">Escríbeme</a>.",
+    contact_side: "Estoy abierta a colaboraciones académicas, co-dirección de tesis y estancias. También atiendo consultas de prensa relacionadas con IA y teledetección.",
+    footer: "Actualizado · 2026 · basado en CVN",
+    side_bio: "Trayectoria, línea de investigación y contexto.",
+    side_stats: "Basado en 87 publicaciones indexadas.",
+    side_pubs: "Filtra por tipo o busca. Los índices de impacto provienen del JCR.",
+    side_proj: "Proyectos nacionales y europeos. Destacados los liderados.",
+    side_coauth: "Basado en las coautorías de las 87 publicaciones indexadas.",
+    side_topics: "Extraídos de títulos y revistas de mi producción.",
+    side_teach: "Docencia en grado, máster y doctorado en la UEx.",
+    side_thesis: "Tesis doctorales, TFM y TFG dirigidos o co-dirigidos.",
+    side_talks: "Selección; consulta el CV para la relación completa.",
+    side_stays: "Estancias internacionales y nacionales.",
+    side_awards: "Reconocimientos académicos y científicos.",
+    side_media: "Servicio a la comunidad científica y divulgación.",
+    side_contact: "Vías preferentes de contacto.",
+  },
+  en: {
+    nav: { bio:"Profile", pubs:"Publications", proj:"Projects", teach:"Teaching", talks:"Talks", contact:"Contact" },
+    lang_toggle: "ES",
+    hero_h1_pre: "Hyperspectral imaging,",
+    hero_h1_mid: "deep learning",
+    hero_h1_post: " and high-performance computing for",
+    hero_h1_it: "Earth observation",
+    hero_lede_html: "I am an <b>Associate Professor</b> at the University of Extremadura and a member of the <b>HyperComp</b> group. My research sits at the intersection of deep learning, efficient neural architectures and HPC/GPU, applied to the classification and analysis of hyperspectral remote-sensing scenes.",
+    kv: {
+      affil: "affiliation", dept: "department", group: "group",
+      base: "based in", orcid: "orcid", senior: "status"
+    },
+    affil_val: "University of Extremadura",
+    dept_val: "Dept. Computer & Communication Technology",
+    group_val: "HyperComp — Hyperspectral Computing Lab",
+    base_val: "University Centre of Mérida · Mérida, Spain",
+    senior_val: "IEEE Senior Member · Associate Editor, JSTARS",
+    tag_field: "HPC · Remote Sensing · Deep Learning",
+    stat: "IEEE Senior Member",
+    stats: { h:"h-index (Scopus)", cit:"total citations", pubs:"indexed publications", since:"active since" },
+    sections: {
+      bio: ["Profile", "Who I am, where I work and on what."],
+      stats: ["Research output", "Indexed publications per year and category."],
+      pubs: ["Publications", "JCR journals (mostly Q1), chapters and books."],
+      proj: ["Projects", "Competitive projects as PI or team member."],
+      coauth: ["Co-authorships", "Map of main collaborators."],
+      topics: ["Topics", "Keywords and relative frequency across my papers."],
+      teach: ["Teaching", "Courses at the University of Extremadura."],
+      thesis: ["Theses & projects", "Doctoral theses and final-year projects supervised."],
+      talks: ["Talks & conferences", "Selection of recent contributions."],
+      stays: ["Research stays", "International research mobility."],
+      awards: ["Awards", "Academic recognitions."],
+      media: ["Service & outreach", "Editorial, committee and outreach work."],
+      contact: ["Contact", "For collaborations, students and inquiries."]
+    },
+    bio_big_html: "My work combines <em>spectral–spatial deep learning</em>, efficient models (capsules, transformers, mixing-MLP) and GPU parallelism to analyze satellite and UAV hyperspectral imagery.",
+    bio_p1_html: "I joined the <b>HyperComp</b> group in 2016. Since then I have worked on pyramidal residual networks, capsule networks, ghost-networks, generative-adversarial oversampling, spectral transformers, federated and reinforcement learning for remote sensing. I combine these models with <b>HPC</b> and <b>GPU</b> strategies for distributed efficient training and on-board inference on embedded platforms.",
+    bio_p2_html: "I am an IEEE Senior Member, Associate Editor at <b>IEEE JSTARS</b>, and have served as topical editor at <b>IEEE TGRS</b> and guest editor of several special issues. I have acted as chair / program-chair at IGARSS, WHISPERS and SARTECO. My work has received the <b>Outstanding PhD Award</b>, UEx's early-career research award and the <b>SCIE–BBVA Foundation</b> research award (2022).",
+    pubs_ui: {
+      search: "Search by title, author or venue…",
+      all: "All", journal: "Journal", chapter: "Chapter",
+      showing: "showing", of: "of",
+      showmore: "Show more", showless: "Show less",
+      cites: "cites"
+    },
+    production_ui: {
+      journals: "journals", chapters: "chapters", total: "total"
+    },
+    coauth_ui: {
+      intro: "Link thickness ≈ joint papers. Drag the nodes to explore.",
+      drag: "drag"
+    },
+    proj_active: "Active", proj_closed: "Closed",
+    ip: "PI", member: "Team",
+    contact_cta_html: "Looking to collaborate on <em>hyperspectral imaging, HPC or deep learning</em> for Earth observation? <a href=\"mailto:mpaoletti@unex.es\">Write to me</a>.",
+    contact_side: "I'm open to academic collaborations, thesis co-supervision and research stays. Also happy to help with press inquiries on AI & remote sensing.",
+    footer: "Updated · 2026 · built from CVN",
+    side_bio: "Trajectory, research line and context.",
+    side_stats: "Based on 87 indexed publications.",
+    side_pubs: "Filter by type or search. Impact factors from JCR.",
+    side_proj: "National and European projects. PI-led highlighted.",
+    side_coauth: "Derived from co-authorships in the 87 indexed papers.",
+    side_topics: "Extracted from titles and venues of my output.",
+    side_teach: "Teaching at undergraduate, MSc and PhD level at UEx.",
+    side_thesis: "Doctoral theses, MSc and BSc projects supervised or co-supervised.",
+    side_talks: "Selection; see full CV for the complete list.",
+    side_stays: "International and national research stays.",
+    side_awards: "Academic and scientific recognitions.",
+    side_media: "Scientific-community service and outreach.",
+    side_contact: "Preferred contact channels.",
+  }
+};
+
+/* ---------- static curated content (from CVN narrative, talks, theses, awards, stays) ---------- */
+const CONTENT = {
+  stats: { h: 31, cites: 5200, pubs: 87, since: 2017 },
+
+  teaching: [
+    { y:"2023 – actualidad / present", es:"Profesora Contratada Doctora · UEx", en:"Associate Professor · UEx", where:"CUM, Universidad de Extremadura", level:"Grado / MSc" },
+    { y:"2023", es:"Profesora sustituta / ayudante doctor", en:"Substitute / Assistant Professor", where:"Universidad de Extremadura", level:"Grado" },
+    { y:"2021", es:"Profesora ayudante doctor", en:"Assistant Professor", where:"Universidad Complutense de Madrid", level:"Grado" },
+    { y:"2021 – 2022", es:"Personal científico investigador", en:"Scientific Researcher", where:"Universidad de Extremadura", level:"Investigación" },
+    { y:"2020", es:"Personal de investigación postdoctoral", en:"Postdoctoral Researcher", where:"Universidad de Málaga — Dpto. Arquitectura de Computadores", level:"Investigación" },
+    { y:"2016 – 2020", es:"Personal con contrato predoctoral (FPU)", en:"Pre-doctoral Researcher (FPU)", where:"Universidad de Extremadura", level:"Doctorado" },
+  ],
+
+  talks: [
+    { y:"2025", es:"Program Chair — WHISPERS'25", en:"Program Chair — WHISPERS'25", where:"IEEE WHISPERS", kind:"Chair" },
+    { y:"2025", es:"Efficient Hyperspectral Band Selection · Actor-Critic Policy", en:"Efficient Hyperspectral Band Selection · Actor-Critic Policy", where:"IEEE IGARSS · Brisbane (AU)", kind:"Oral" },
+    { y:"2025", es:"Aceleración de convoluciones en GPU mediante Triton", en:"GPU convolution acceleration with Triton", where:"SARTECO 2025 · Sevilla", kind:"Oral" },
+    { y:"2025", es:"HHU-HAD: UAV-borne Hyperspectral Anomaly Detection", en:"HHU-HAD: UAV-borne Hyperspectral Anomaly Detection", where:"IX Jornadas Doctorales · UEx, Badajoz", kind:"Poster" },
+    { y:"2022", es:"Chair — IGARSS 2022", en:"Chair — IGARSS 2022", where:"IEEE IGARSS", kind:"Chair" },
+    { y:"2021", es:"Workshop: Hyperspectral Sensing meets ML & Pattern Analysis", en:"Workshop: Hyperspectral Sensing meets ML & Pattern Analysis", where:"WHISPERS'21", kind:"Co-organizer" },
+    { y:"2019", es:"Chair — SARTECO 2019", en:"Chair — SARTECO 2019", where:"SARTECO", kind:"Chair" },
+    { y:"2018", es:"Chair — IGARSS 2018", en:"Chair — IGARSS 2018", where:"IEEE IGARSS", kind:"Chair" },
+    { y:"2018", es:"Cloud Implementation of a Neural Classifier for Hyperspectral Images", en:"Cloud Implementation of a Neural Classifier for Hyperspectral Images", where:"MED2018 · ESA, Roma", kind:"Oral" },
+  ],
+
+  theses: [
+    { y:"2025", who:"Lirong Han", es:"Técnicas de Hashing para aplicaciones de teledetección usando deep learning", en:"Hashing techniques for remote-sensing applications using deep learning", kind:"Tesis doctoral", role:"Directora" },
+    { y:"2025", who:"Iván Sampé Prieto", es:"Estación meteorológica con protocolo LoRaWAN", en:"Weather station using the LoRaWAN protocol", kind:"TFG", role:"Directora" },
+    { y:"2025", who:"Guillermo Rubio Nolberto", es:"BeeMonitor — monitorización de colmenas", en:"BeeMonitor — beehive monitoring app", kind:"TFG", role:"Directora" },
+    { y:"2025", who:"Ignacio Sánchez Aguilera", es:"FitDiet — herramienta digital para control de dietas", en:"FitDiet — digital diet-control tool", kind:"TFG", role:"Directora" },
+    { y:"2024", who:"Miguel Medina Campo", es:"Recuperación intermodal basada en bocetos para teledetección", en:"Sketch-based intermodal retrieval for remote sensing", kind:"TFG (Sobresaliente)", role:"Directora" },
+    { y:"2023", who:"José Luis García Salas", es:"Segmentación semántica hiperespectral con convolución rectangular", en:"Hyperspectral semantic segmentation with rectangular convolution", kind:"TFG (MH)", role:"Directora" },
+    { y:"2023", who:"Juan Salvador Valleros", es:"Algoritmo MDA sobre ecosistema cloud de Apache", en:"MDA algorithm on the Apache cloud ecosystem", kind:"TFM (MH)", role:"Directora" },
+    { y:"2023", who:"Alejandro Fernández Camello", es:"Imitación del comportamiento humano en ajedrez con deep learning", en:"Deep-learning chess-style imitation, extensible to strategy games", kind:"TFG (MH)", role:"Directora" },
+    { y:"2023", who:"Raquel López Graña", es:"Aplicación web para prototipado de modelos de IA", en:"Web application for AI-model prototyping", kind:"TFG (Sobresaliente)", role:"Directora" },
+    { y:"2023", who:"Diego Gallardo Zancada", es:"Sistema de detección de niveles de UV nocivos", en:"System for detecting harmful UV levels", kind:"TFG (Sobresaliente)", role:"Directora" },
+    { y:"2022", who:"Carlos Cañada Rostro", es:"Aprendizaje profundo para predicción de activos financieros", en:"Deep learning for financial-asset prediction", kind:"TFG", role:"Co-directora" },
+  ],
+
+  stays: [
+    { y:"2019", where:"Universitat Jaume I · Castellón, España", host:"Prof. Filiberto Pla", len_es:"2 meses", len_en:"2 months", notes_es:"5 artículos Q1 publicados", notes_en:"5 Q1 papers published" },
+    { y:"2018", where:"Università degli Studi di Roma Tor Vergata · Italia", host:"Prof. Fabio del Frate", len_es:"3 meses", len_en:"3 months", notes_es:"Ayuda FPU-movilidad · contribución a MED2018 (ESA)", notes_en:"FPU mobility grant · contribution to MED2018 (ESA)" },
+  ],
+
+  awards: [
+    { y:"2022", es:"Premio de investigación SCIE — Fundación BBVA", en:"SCIE — BBVA Foundation Research Award", who:"Sociedad Científica Informática de España + BBVA" },
+    { y:"2022", es:"Premio a la trayectoria investigadora joven", en:"Early-career research trajectory award", who:"Universidad de Extremadura" },
+    { y:"2020", es:"Premio Extraordinario de Doctorado · Mención Internacional · Cum Laude", en:"Outstanding PhD Award · International Mention · Cum Laude", who:"Universidad de Extremadura" },
+    { y:"2020", es:"Outstanding Reviewer Recognition", en:"Outstanding Reviewer Recognition", who:"IEEE TGRS" },
+    { y:"—", es:"ESI Highly Cited — Research Front & Hot Paper", en:"ESI — Research Front & Hot Paper", who:"Clarivate" },
+    { y:"Grado", es:"Mejor expediente UEx · CPIIEx · alumna distinguida EPCC", en:"Top GPA UEx · CPIIEx · distinguished alumna EPCC", who:"Grado Ing. Informática" },
+  ],
+
+  media: [
+    { y:"2025", es:"Program Chair — IEEE WHISPERS'25", en:"Program Chair — IEEE WHISPERS'25", kind:"Servicio" },
+    { y:"2024 –", es:"Associate Editor — IEEE JSTARS", en:"Associate Editor — IEEE JSTARS", kind:"Editorial" },
+    { y:"2022 –", es:"Editora tópica — IEEE Transactions on Geoscience and Remote Sensing", en:"Topical Editor — IEEE Transactions on Geoscience and Remote Sensing", kind:"Editorial" },
+    { y:"—", es:"Editora invitada de varios special issues en Remote Sensing (MDPI)", en:"Guest editor of several Remote Sensing (MDPI) special issues", kind:"Editorial" },
+    { y:"2022, 2018", es:"Chair — IEEE IGARSS", en:"Chair — IEEE IGARSS", kind:"Comité" },
+    { y:"2019", es:"Chair — SARTECO 2019", en:"Chair — SARTECO 2019", kind:"Comité" },
+    { y:"—", es:"Senior Member del IEEE · IEEE GRSS", en:"IEEE Senior Member · IEEE GRSS", kind:"Sociedades" },
+  ],
+
+  topics: [
+    { t:"hyperspectral image classification", w:48, size:"big" },
+    { t:"deep learning", w:42, size:"big" },
+    { t:"remote sensing", w:36, size:"mid" },
+    { t:"GPU / HPC", w:30, size:"mid" },
+    { t:"convolutional neural networks", w:28, size:"mid" },
+    { t:"transformers", w:20 },
+    { t:"spectral–spatial features", w:18 },
+    { t:"capsule networks", w:14 },
+    { t:"pyramidal residual nets", w:12 },
+    { t:"ghost networks", w:10 },
+    { t:"GAN / oversampling", w:10 },
+    { t:"anomaly detection", w:9 },
+    { t:"federated learning", w:8 },
+    { t:"reinforcement learning", w:8 },
+    { t:"on-board inference", w:8 },
+    { t:"quantization", w:7 },
+    { t:"model parallelism", w:7 },
+    { t:"unmixing", w:6 },
+    { t:"target detection", w:6 },
+    { t:"super-resolution", w:5 },
+    { t:"Earth observation", w:14 },
+  ],
+};
+
+/* ---------- state ---------- */
+const STATE = {
+  lang: (localStorage.getItem("mp_lang") || "es"),
+  theme: (localStorage.getItem("mp_theme") || "light"),
+  pubFilter: "all",
+  pubQuery: "",
+  pubLimit: 12,
+};
+
+/* ---------- utils ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const h = (tag, attrs={}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})) {
+    if (k === "class") el.className = v;
+    else if (k === "html") el.innerHTML = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (v !== false && v != null) el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    el.appendChild(typeof kid === "string" ? document.createTextNode(kid) : kid);
+  }
+  return el;
+};
+
+function tr() { return I[STATE.lang]; }
+function setTheme(t){
+  STATE.theme = t;
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("mp_theme", t);
+  const b = $("#tw-dark"); if (b) { b.setAttribute("aria-pressed", t==="dark"); b.textContent = t==="dark" ? "ON" : "OFF"; }
+  const bt = $("#btn-theme"); if (bt) bt.setAttribute("aria-pressed", t==="dark");
+  // Refresh coauthor + chart graph colors
+  renderChart(); renderCoauthors();
+  // persist to host
+  window.parent?.postMessage({type:'__edit_mode_set_keys', edits:{theme:t}}, '*');
+}
+function setLang(l){
+  STATE.lang = l;
+  localStorage.setItem("mp_lang", l);
+  document.documentElement.setAttribute("lang", l);
+  render();
+  window.parent?.postMessage({type:'__edit_mode_set_keys', edits:{lang:l}}, '*');
+}
+
+/* ---------- author formatting ---------- */
+const ME_RE = /Paoletti/i;
+function fmtAuthors(list, maxInline=null) {
+  let shown = list;
+  let trailing = "";
+  if (maxInline && list.length > maxInline) {
+    shown = list.slice(0, maxInline);
+    trailing = ` <span class="muted">+ ${list.length - maxInline}</span>`;
+  }
+  return shown.map(a => ME_RE.test(a) ? `<b>${a}</b>` : a).join(", ") + trailing;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render() {
+  const root = $("#app");
+  root.innerHTML = "";
+  root.appendChild(renderTopbar());
+  root.appendChild(renderHero());
+  root.appendChild(renderBio());
+  root.appendChild(renderProduction());
+  root.appendChild(renderPubs());
+  root.appendChild(renderProjects());
+  root.appendChild(renderCoauth());
+  root.appendChild(renderTopics());
+  root.appendChild(renderTeaching());
+  root.appendChild(renderThesis());
+  root.appendChild(renderTalks());
+  root.appendChild(renderStays());
+  root.appendChild(renderAwards());
+  root.appendChild(renderMedia());
+  root.appendChild(renderContact());
+  root.appendChild(renderFooter());
+
+  // paint chart + graph after DOM insertion
+  try { renderChart(); } catch(e) { console.error('renderChart', e); }
+  try { renderCoauthors(); } catch(e) { console.error('renderCoauthors', e); }
+}
+
+function renderTopbar() {
+  const t = tr();
+  return h("header", { class: "topbar" },
+    h("div", { class: "brand" },
+      h("div", { class: "mark" }),
+      h("div", { class: "who" },
+        h("span", { html: "Mercedes E. Paoletti" }),
+        h("em", { html: " · HyperComp" })
+      )
+    ),
+    h("nav", { class: "nav" },
+      h("a", { href: "#bio" }, t.nav.bio),
+      h("a", { href: "#pubs" }, t.nav.pubs),
+      h("a", { href: "#proj" }, t.nav.proj),
+      h("a", { href: "#teach" }, t.nav.teach),
+      h("a", { href: "#talks" }, t.nav.talks),
+      h("a", { href: "#contact" }, t.nav.contact)
+    ),
+    h("div", { class: "utils" },
+      h("button", {
+        class: "ubtn", id: "btn-lang",
+        onclick: () => setLang(STATE.lang === "es" ? "en" : "es")
+      }, "✦ ", STATE.lang === "es" ? "EN" : "ES"),
+      h("button", {
+        class: "ubtn", id: "btn-theme",
+        "aria-pressed": STATE.theme === "dark",
+        onclick: () => setTheme(STATE.theme === "dark" ? "light" : "dark")
+      }, STATE.theme === "dark" ? "☾ dark" : "☀ light")
+    )
+  );
+}
+
+function renderHero() {
+  const t = tr();
+  return h("section", { class: "hero", id: "top" },
+    h("div", {},
+      h("h1", { class: "headline" },
+        h("span", { html: `${t.hero_h1_pre} <em>${t.hero_h1_mid}</em>${t.hero_h1_post} ` }),
+        h("em", { html: t.hero_h1_it }),
+        h("span", { class: "dot" })
+      ),
+      h("p", { class: "lede", html: t.hero_lede_html }),
+      h("dl", { class: "kv" },
+        h("dt", {}, t.kv.affil), h("dd", {}, t.affil_val),
+        h("dt", {}, t.kv.dept),  h("dd", {}, t.dept_val),
+        h("dt", {}, t.kv.group), h("dd", {}, t.group_val),
+        h("dt", {}, t.kv.base),  h("dd", {}, t.base_val),
+        h("dt", {}, t.kv.orcid),
+        h("dd", {}, h("a", { href: "https://orcid.org/0000-0003-1030-3729", target: "_blank", rel: "noopener" }, "0000-0003-1030-3729")),
+        h("dt", {}, t.kv.senior), h("dd", {}, t.senior_val),
+      )
+    ),
+    h("div", { class: "portrait appear" },
+      h("span", { class: "tag" }, t.tag_field),
+      h("span", { class: "stat" }, t.stat),
+      h("div", { class: "silhouette" },
+        // Stylized generic silhouette placeholder
+        h("div", { html: `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#121214" stop-opacity=".92"/>
+              <stop offset="1" stop-color="#121214" stop-opacity=".75"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#pg)" d="M100 40c24 0 42 22 42 48 0 20-11 37-25 44 26 6 52 23 58 48 2 10 3 20 3 32H22c0-12 1-22 3-32 6-25 32-42 58-48-14-7-25-24-25-44 0-26 18-48 42-48z"/>
+        </svg>` })
+      ),
+      h("div", { class: "initials" },
+        h("span", {}, "MERCEDES · E · PAOLETTI"),
+        h("span", {}, "∴ UEX")
+      )
+    )
+  );
+}
+
+function sectionHead(num, key) {
+  const s = tr().sections[key];
+  return h("div", { class: "sec-head" },
+    h("div", { class: "num" }, num),
+    h("h2", { html: s[0] })
+  );
+}
+function sectionSide(key) {
+  const t = tr();
+  const label = { bio:"ABSTRACT", stats:"DATA", pubs:"INDEX", proj:"GRANTS", coauth:"NETWORK", topics:"KEYWORDS", teach:"COURSES", thesis:"SUPERVISION", talks:"EVENTS", stays:"MOBILITY", awards:"RECOGNITION", media:"SERVICE", contact:"REACH" }[key] || "";
+  const sideKey = "side_" + key;
+  return h("div", { class: "side" },
+    h("div", { class: "label" }, label),
+    h("p", {}, t[sideKey] || "")
+  );
+}
+
+function renderBio() {
+  const t = tr();
+  return h("section", { class: "block", id: "bio" },
+    sectionHead("01", "bio"),
+    h("div", { class: "sec-body bio" },
+      sectionSide("bio"),
+      h("div", {},
+        h("p", { class: "big", html: t.bio_big_html }),
+        h("p", { html: t.bio_p1_html }),
+        h("p", { html: t.bio_p2_html }),
+        // stats
+        h("div", { class: "stats-row" },
+          h("div", { class: "stat-cell" },
+            h("div", { class: "num" }, String(CONTENT.stats.pubs), h("sup", {}, "+")),
+            h("div", { class: "lbl" }, t.stats.pubs)
+          ),
+          h("div", { class: "stat-cell" },
+            h("div", { class: "num" }, String(CONTENT.stats.cites), h("sup", {}, "+")),
+            h("div", { class: "lbl" }, t.stats.cit)
+          ),
+          h("div", { class: "stat-cell" },
+            h("div", { class: "num" }, String(CONTENT.stats.h)),
+            h("div", { class: "lbl" }, t.stats.h)
+          ),
+          h("div", { class: "stat-cell" },
+            h("div", { class: "num" }, String(CONTENT.stats.since)),
+            h("div", { class: "lbl" }, t.stats.since)
+          )
+        )
+      )
+    )
+  );
+}
+
+/* ---------- Chart: pubs per year ---------- */
+function computeByYear() {
+  const by = {};
+  for (const p of window.__PUBS__) {
+    if (!p.y) continue;
+    by[p.y] = by[p.y] || { j:0, c:0 };
+    if (p.type === "chapter") by[p.y].c++;
+    else by[p.y].j++;
+  }
+  const years = Object.keys(by).map(Number).sort((a,b)=>a-b);
+  return { years, by };
+}
+
+function renderProduction() {
+  return h("section", { class: "block", id: "stats" },
+    sectionHead("02", "stats"),
+    h("div", { class: "sec-body" },
+      sectionSide("stats"),
+      h("div", { class: "chart", id: "chart-mount" })
+    )
+  );
+}
+
+function renderChart() {
+  const mount = $("#chart-mount");
+  if (!mount) return;
+  mount.innerHTML = "";
+  const t = tr();
+  const { years, by } = computeByYear();
+  if (!years.length) return;
+  const max = Math.max(...years.map(y => (by[y].j + by[y].c)));
+  // SVG
+  const W = 900, H = 300, padL = 40, padR = 16, padT = 20, padB = 38;
+  const IW = W - padL - padR, IH = H - padT - padB;
+  const n = years.length;
+  const bw = IW / n * 0.62;
+  const step = IW / n;
+
+  const css = getComputedStyle(document.documentElement);
+  const cAccent = css.getPropertyValue("--accent").trim() || "#2547ff";
+  const cAccent4 = css.getPropertyValue("--accent-4").trim() || "#ffb020";
+  const cInk4 = css.getPropertyValue("--ink-4").trim() || "#8f8f97";
+  const cLine = css.getPropertyValue("--line").trim() || "#eae7dc";
+
+  const legend = h("div", { class: "legend" },
+    h("span", {}, h("i", { style: `background:${cAccent}` }), t.production_ui.journals),
+    h("span", {}, h("i", { style: `background:${cAccent4}` }), t.production_ui.chapters)
+  );
+
+  // ticks
+  const ticks = [0, Math.ceil(max*0.5), max];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">`;
+  // y gridlines
+  ticks.forEach(v => {
+    const y = padT + IH - (v/max)*IH;
+    svg += `<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="${cLine}" stroke-width="1"/>`;
+    svg += `<text x="${padL-8}" y="${y+4}" text-anchor="end" fill="${cInk4}" font-family="JetBrains Mono, monospace" font-size="10">${v}</text>`;
+  });
+  // bars
+  years.forEach((y,i) => {
+    const x = padL + i*step + (step-bw)/2;
+    const j = by[y].j, c = by[y].c;
+    const hJ = (j/max)*IH;
+    const hC = (c/max)*IH;
+    const yJ = padT + IH - hJ;
+    const yC = yJ - hC;
+    svg += `<rect x="${x}" y="${yJ}" width="${bw}" height="${hJ}" fill="${cAccent}" rx="2"/>`;
+    if (c>0) svg += `<rect x="${x}" y="${yC}" width="${bw}" height="${hC}" fill="${cAccent4}" rx="2"/>`;
+    svg += `<text x="${x+bw/2}" y="${padT+IH-hJ-hC-6}" text-anchor="middle" fill="${cInk4}" font-family="JetBrains Mono, monospace" font-size="10">${j+c}</text>`;
+    svg += `<text x="${x+bw/2}" y="${H-14}" text-anchor="middle" fill="${cInk4}" font-family="JetBrains Mono, monospace" font-size="11">${y}</text>`;
+  });
+  svg += `</svg>`;
+  const svgWrap = h("div", { html: svg });
+  mount.appendChild(legend);
+  mount.appendChild(svgWrap);
+}
+
+/* ---------- Publications ---------- */
+function applyPubFilter() {
+  const q = STATE.pubQuery.toLowerCase().trim();
+  let list = window.__PUBS__.slice();
+  if (STATE.pubFilter !== "all") list = list.filter(p => p.type === STATE.pubFilter);
+  if (q) {
+    list = list.filter(p =>
+      (p.t||"").toLowerCase().includes(q) ||
+      (p.v||"").toLowerCase().includes(q) ||
+      (p.a||[]).some(a => a.toLowerCase().includes(q))
+    );
+  }
+  list.sort((a,b) => (b.y||0) - (a.y||0));
+  return list;
+}
+
+function renderPubs() {
+  const t = tr();
+  const counts = { all: window.__PUBS__.length,
+                   journal: window.__PUBS__.filter(p=>p.type==="journal").length,
+                   chapter: window.__PUBS__.filter(p=>p.type==="chapter").length };
+  const filtered = applyPubFilter();
+  const shown = filtered.slice(0, STATE.pubLimit);
+  const canExpand = filtered.length > STATE.pubLimit;
+  const canCollapse = STATE.pubLimit > 12 && filtered.length > 12;
+
+  const toolbar = h("div", { class: "pub-toolbar" },
+    h("input", {
+      class: "pub-search", type: "search",
+      placeholder: t.pubs_ui.search,
+      value: STATE.pubQuery,
+      oninput: (e) => { STATE.pubQuery = e.target.value; STATE.pubLimit = 12; rerenderPubs(); }
+    }),
+    h("div", { class: "chips" },
+      ["all","journal","chapter"].map(k =>
+        h("button", {
+          class: "chip", "aria-pressed": STATE.pubFilter === k,
+          onclick: () => { STATE.pubFilter = k; STATE.pubLimit = 12; rerenderPubs(); }
+        }, t.pubs_ui[k], h("span", { class: "n" }, String(counts[k])))
+      )
+    )
+  );
+  const count = h("div", { class: "pub-count" }, `${t.pubs_ui.showing} ${shown.length} ${t.pubs_ui.of} ${filtered.length}`);
+  const list = h("ol", { class: "pub-list" },
+    shown.map(p => h("li", { class: "pub-item" },
+      h("div", { class: "pub-year" }, String(p.y||"")),
+      h("div", { class: "pub-main" },
+        h("h3", { class: "title" },
+          p.doi
+            ? h("a", { href: `https://doi.org/${p.doi}`, target:"_blank", rel:"noopener" }, p.t)
+            : p.t
+        ),
+        h("div", { class: "authors", html: fmtAuthors(p.a, 8) }),
+        h("div", { class: "meta" },
+          h("span", { class: `tag ${p.type}` }, p.type === "chapter" ? t.pubs_ui.chapter : t.pubs_ui.journal),
+          p.q1 ? h("span", { class: "q1" }, "Q1") : null,
+          p.impact ? h("span", { class: "if" }, "IF ", String(p.impact)) : null
+        )
+      ),
+      h("div", { class: "pub-venue venue" },
+        p.v || "",
+        p.doi ? h("span", { class: "doi" }, h("a", { href: `https://doi.org/${p.doi}`, target:"_blank", rel:"noopener" }, "doi.org/", p.doi.length > 24 ? p.doi.slice(0,22) + "…" : p.doi)) : null
+      )
+    ))
+  );
+
+  const btn = canExpand
+    ? h("button", { class: "showmore", onclick: () => { STATE.pubLimit += 15; rerenderPubs(); } }, t.pubs_ui.showmore)
+    : canCollapse
+      ? h("button", { class: "showmore", onclick: () => { STATE.pubLimit = 12; rerenderPubs(); } }, t.pubs_ui.showless)
+      : null;
+
+  return h("section", { class: "block", id: "pubs" },
+    sectionHead("03", "pubs"),
+    h("div", { class: "sec-body" },
+      sectionSide("pubs"),
+      h("div", { id: "pubs-mount" },
+        toolbar, count, list, btn
+      )
+    )
+  );
+}
+function rerenderPubs() {
+  const mount = $("#pubs-mount");
+  if (!mount) return;
+  // naive re-render: rebuild whole pubs section
+  const parent = mount.parentNode.parentNode;
+  parent.replaceWith(renderPubs());
+}
+
+/* ---------- Projects ---------- */
+function renderProjects() {
+  const t = tr();
+  const list = window.__PROJS__.slice().sort((a,b) => {
+    const as = parseInt((a.end||a.start||"0").slice(-4));
+    const bs = parseInt((b.end||b.start||"0").slice(-4));
+    return bs - as;
+  });
+  const today = new Date();
+  return h("section", { class: "block", id: "proj" },
+    sectionHead("04", "proj"),
+    h("div", { class: "sec-body" },
+      sectionSide("proj"),
+      h("div", { class: "proj-grid" },
+        list.map(p => {
+          const endY = parseInt((p.end||"").slice(6,10));
+          const active = endY >= today.getFullYear();
+          const status = active ? t.proj_active : t.proj_closed;
+          const sy = (p.start||"").slice(6,10), ey = (p.end||"").slice(6,10);
+          const rawName = p.name || "";
+          // Strip trailing "(CODE)" for display
+          const cleanName = rawName.replace(/\s*\([A-Z0-9\-\.]+\)\s*$/, "").trim();
+          return h("div", { class: "proj-card" },
+            h("div", { class: `status ${active?"":"closed"}` }, h("i"), status, " · ", sy, " – ", ey),
+            h("h3", {}, cleanName),
+            h("div", { class: "role-row" },
+              h("span", { class: `role ${p.isIP?"ip":""}` }, p.isIP ? t.ip : t.member),
+              p.funder ? h("span", {}, "· ", p.funder) : null
+            ),
+            h("div", { class: "foot" },
+              h("span", { class: "code" }, p.code || ""),
+              p.amount ? h("span", { class: "amt" }, p.amount.replace(/\./g,".") + " €") : null
+            )
+          );
+        })
+      )
+    )
+  );
+}
+
+/* ---------- Co-authorship map ---------- */
+function buildCoauthorGraph() {
+  const pubs = window.__PUBS__;
+  const count = {};   // author -> count
+  const pairs = {};   // "a|b" -> count (with me)
+  for (const p of pubs) {
+    const mePresent = p.a.some(a => ME_RE.test(a));
+    if (!mePresent) continue;
+    for (const a of p.a) {
+      if (ME_RE.test(a)) continue;
+      count[a] = (count[a]||0) + 1;
+    }
+  }
+  const top = Object.entries(count)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0, 15);
+  return top;
+}
+
+function renderCoauth() {
+  return h("section", { class: "block", id: "coauth" },
+    sectionHead("05", "coauth"),
+    h("div", { class: "sec-body" },
+      sectionSide("coauth"),
+      h("div", { class: "net-wrap" },
+        h("div", { id: "net-mount" }),
+        h("div", { class: "hint" }, tr().coauth_ui.drag)
+      )
+    )
+  );
+}
+
+function renderCoauthors() {
+  const mount = $("#net-mount");
+  if (!mount) return;
+  mount.innerHTML = "";
+  const top = buildCoauthorGraph();
+  const W = 900, H = 520;
+  const css = getComputedStyle(document.documentElement);
+  const cAccent = css.getPropertyValue("--accent").trim() || "#2547ff";
+  const cAccent2 = css.getPropertyValue("--accent-2").trim() || "#ff5a2e";
+  const cInk = css.getPropertyValue("--ink").trim() || "#121214";
+  const cBg = css.getPropertyValue("--bg-elev").trim() || "#fff";
+  const cLine = css.getPropertyValue("--line").trim() || "#eae7dc";
+  const cInk3 = css.getPropertyValue("--ink-3").trim() || "#5e5e65";
+  const cInk4 = css.getPropertyValue("--ink-4").trim() || "#8f8f97";
+
+  // positions: me at center, nodes on concentric rings by tier
+  const cx = W/2, cy = H/2;
+  const nodes = [{ id: "__me", name: "Mercedes E. Paoletti", x: cx, y: cy, w: 87, fixed: true }];
+  const tiers = [
+    { r: 150, start: 0, items: [] },
+    { r: 240, start: Math.PI/6, items: [] },
+  ];
+  // distribute: top 5 on inner, rest on outer
+  top.forEach((t, i) => {
+    if (i < 5) tiers[0].items.push(t);
+    else tiers[1].items.push(t);
+  });
+  tiers.forEach(tier => {
+    const n = tier.items.length;
+    tier.items.forEach(([name, w], i) => {
+      const ang = tier.start + (i / n) * Math.PI * 2;
+      const x = cx + Math.cos(ang) * tier.r;
+      const y = cy + Math.sin(ang) * tier.r;
+      nodes.push({ id: "n"+nodes.length, name, x, y, w });
+    });
+  });
+
+  const maxW = Math.max(...nodes.map(n => n.w));
+  const nodeR = (w, me=false) => {
+    if (me) return 34;
+    return 9 + (w/maxW) * 20;
+  };
+
+  const edges = nodes.slice(1).map(n => ({ a: nodes[0], b: n, w: n.w }));
+
+  // Build SVG
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.style.background = cBg;
+
+  // edges layer
+  const gEdges = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  svg.appendChild(gEdges);
+  // nodes layer
+  const gNodes = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  svg.appendChild(gNodes);
+
+  function draw() {
+    gEdges.innerHTML = "";
+    gNodes.innerHTML = "";
+    edges.forEach(e => {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", e.a.x); line.setAttribute("y1", e.a.y);
+      line.setAttribute("x2", e.b.x); line.setAttribute("y2", e.b.y);
+      const sw = 0.6 + (e.w/maxW) * 3.2;
+      line.setAttribute("stroke", cLine);
+      line.setAttribute("stroke-width", sw.toFixed(2));
+      line.setAttribute("opacity", "0.85");
+      gEdges.appendChild(line);
+    });
+    nodes.forEach((n, i) => {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("data-idx", i);
+      g.style.cursor = n.fixed ? "default" : "grab";
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      const r = nodeR(n.w, !!n.fixed);
+      circle.setAttribute("cx", n.x);
+      circle.setAttribute("cy", n.y);
+      circle.setAttribute("r", r);
+      circle.setAttribute("fill", n.fixed ? cInk : cAccent);
+      circle.setAttribute("stroke", cBg);
+      circle.setAttribute("stroke-width", "3");
+      g.appendChild(circle);
+
+      if (n.fixed) {
+        // label inside
+        const tx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        tx.setAttribute("x", n.x); tx.setAttribute("y", n.y + 4);
+        tx.setAttribute("text-anchor", "middle");
+        tx.setAttribute("fill", cBg);
+        tx.setAttribute("font-family", "JetBrains Mono, monospace");
+        tx.setAttribute("font-size", "11");
+        tx.setAttribute("font-weight", "600");
+        tx.textContent = "MP";
+        g.appendChild(tx);
+      }
+
+      // Author label
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      const isRight = n.x >= cx;
+      label.setAttribute("x", n.x + (isRight ? r + 8 : -r - 8));
+      label.setAttribute("y", n.y + 4);
+      label.setAttribute("text-anchor", isRight ? "start" : "end");
+      label.setAttribute("fill", cInk);
+      label.setAttribute("font-family", "Space Grotesk, sans-serif");
+      label.setAttribute("font-size", n.fixed ? "13" : "12");
+      label.setAttribute("font-weight", n.fixed ? "600" : "500");
+      label.textContent = n.fixed ? "" : n.name;
+      g.appendChild(label);
+
+      // Count badge
+      if (!n.fixed) {
+        const badge = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        badge.setAttribute("x", n.x + (isRight ? r + 8 : -r - 8));
+        badge.setAttribute("y", n.y + 18);
+        badge.setAttribute("text-anchor", isRight ? "start" : "end");
+        badge.setAttribute("fill", cInk4);
+        badge.setAttribute("font-family", "JetBrains Mono, monospace");
+        badge.setAttribute("font-size", "10");
+        badge.textContent = `${n.w} papers`;
+        g.appendChild(badge);
+      }
+
+      // drag
+      if (!n.fixed) {
+        g.addEventListener("pointerdown", (ev) => {
+          ev.preventDefault();
+          const pt = svg.createSVGPoint();
+          const startX = ev.clientX, startY = ev.clientY;
+          const origX = n.x, origY = n.y;
+          const rect = svg.getBoundingClientRect();
+          const scaleX = W / rect.width;
+          g.style.cursor = "grabbing";
+          function move(e2) {
+            const dx = (e2.clientX - startX) * scaleX;
+            const dy = (e2.clientY - startY) * scaleX;
+            n.x = origX + dx; n.y = origY + dy;
+            draw();
+          }
+          function up() {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", up);
+            g.style.cursor = "grab";
+          }
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", up);
+        });
+      }
+
+      gNodes.appendChild(g);
+    });
+  }
+  draw();
+  mount.appendChild(svg);
+}
+
+/* ---------- Topics ---------- */
+function renderTopics() {
+  return h("section", { class: "block", id: "topics" },
+    sectionHead("06", "topics"),
+    h("div", { class: "sec-body" },
+      sectionSide("topics"),
+      h("div", { class: "topics" },
+        CONTENT.topics.map(t =>
+          h("span", { class: `topic ${t.size||""}` },
+            t.t, h("span", { class: "w" }, String(t.w))
+          )
+        )
+      )
+    )
+  );
+}
+
+/* ---------- Teaching / thesis / talks / stays / awards / media ---------- */
+function genericRows(items, mapFn) {
+  return h("div", { class: "rows" },
+    items.map(it => {
+      const { when, what, sub, meta, metaAccent } = mapFn(it);
+      return h("div", { class: "row-i" },
+        h("div", { class: "when" }, when || ""),
+        h("div", { class: "what" },
+          what,
+          sub ? h("small", {}, sub) : null
+        ),
+        h("div", { class: `meta ${metaAccent?"accent":""}` }, meta || "")
+      );
+    })
+  );
+}
+
+function renderTeaching() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "teach" },
+    sectionHead("07", "teach"),
+    h("div", { class: "sec-body" },
+      sectionSide("teach"),
+      genericRows(CONTENT.teaching, it => ({
+        when: it.y,
+        what: it[L],
+        sub: it.where,
+        meta: it.level
+      }))
+    )
+  );
+}
+
+function renderThesis() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "thesis" },
+    sectionHead("08", "thesis"),
+    h("div", { class: "sec-body" },
+      sectionSide("thesis"),
+      genericRows(CONTENT.theses, it => ({
+        when: it.y,
+        what: it[L],
+        sub: `${it.who} · ${it.role}`,
+        meta: it.kind
+      }))
+    )
+  );
+}
+
+function renderTalks() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "talks" },
+    sectionHead("09", "talks"),
+    h("div", { class: "sec-body" },
+      sectionSide("talks"),
+      genericRows(CONTENT.talks, it => ({
+        when: it.y,
+        what: it[L],
+        sub: it.where,
+        meta: it.kind,
+        metaAccent: /chair|keynote/i.test(it.kind)
+      }))
+    )
+  );
+}
+
+function renderStays() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "stays" },
+    sectionHead("10", "stays"),
+    h("div", { class: "sec-body" },
+      sectionSide("stays"),
+      genericRows(CONTENT.stays, it => ({
+        when: it.y,
+        what: it.where,
+        sub: `${L==="es"?"anfitrión":"host"}: ${it.host} · ${L==="es"?it.notes_es:it.notes_en}`,
+        meta: L==="es" ? it.len_es : it.len_en,
+      }))
+    )
+  );
+}
+
+function renderAwards() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "awards" },
+    sectionHead("11", "awards"),
+    h("div", { class: "sec-body" },
+      sectionSide("awards"),
+      genericRows(CONTENT.awards, it => ({
+        when: it.y,
+        what: it[L],
+        sub: it.who,
+        meta: "",
+        metaAccent: true
+      }))
+    )
+  );
+}
+
+function renderMedia() {
+  const L = STATE.lang;
+  return h("section", { class: "block", id: "media" },
+    sectionHead("12", "media"),
+    h("div", { class: "sec-body" },
+      sectionSide("media"),
+      genericRows(CONTENT.media, it => ({
+        when: it.y,
+        what: it[L],
+        sub: "",
+        meta: it.kind
+      }))
+    )
+  );
+}
+
+function renderContact() {
+  const t = tr();
+  return h("section", { class: "block", id: "contact" },
+    sectionHead("13", "contact"),
+    h("div", { class: "sec-body contact-grid" },
+      h("div", {},
+        h("p", { class: "contact-cta", html: t.contact_cta_html }),
+        h("div", { class: "socials" },
+          h("a", { class: "soc", href: "mailto:mpaoletti@unex.es" }, h("i"), "mpaoletti@unex.es"),
+          h("a", { class: "soc", href: "https://orcid.org/0000-0003-1030-3729", target:"_blank", rel:"noopener" }, h("i"), "ORCID"),
+          h("a", { class: "soc", href: "https://scholar.google.com/citations?user=yxDRwB8AAAAJ", target:"_blank", rel:"noopener" }, h("i"), "Google Scholar"),
+          h("a", { class: "soc", href: "https://www.unex.es", target:"_blank", rel:"noopener" }, h("i"), "UEx")
+        )
+      ),
+      h("div", { class: "side" },
+        h("div", { class: "label" }, "INFO"),
+        h("p", {}, t.contact_side)
+      )
+    )
+  );
+}
+
+function renderFooter() {
+  return h("footer", { class: "footer" },
+    h("span", {}, "© ", String(new Date().getFullYear()), " · Mercedes E. Paoletti · HyperComp · UEx"),
+    h("span", {}, tr().footer)
+  );
+}
+
+/* =========================================================
+   Init + Tweaks host protocol
+   ========================================================= */
+
+// Tweak panel handlers
+window.addEventListener("message", (e) => {
+  const d = e.data; if (!d || typeof d !== "object") return;
+  if (d.type === "__activate_edit_mode") $("#tweaks-panel").classList.add("on");
+  if (d.type === "__deactivate_edit_mode") $("#tweaks-panel").classList.remove("on");
+});
+setTimeout(() => {
+  try { window.parent?.postMessage({ type:"__edit_mode_available" }, "*"); } catch(e){}
+}, 120);
+
+document.addEventListener("DOMContentLoaded", () => {
+  // apply persisted
+  setTheme(STATE.theme);
+  render();
+  // hook tweak panel buttons
+  $("#tw-dark")?.addEventListener("click", () => setTheme(STATE.theme === "dark" ? "light" : "dark"));
+  $("#tw-lang")?.addEventListener("click", () => {
+    const next = STATE.lang === "es" ? "en" : "es";
+    setLang(next);
+    $("#tw-lang").textContent = next.toUpperCase();
+  });
+});
+
+</script>
+</body>
+</html>
